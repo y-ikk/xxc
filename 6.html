@@ -1,0 +1,146 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <html>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="IE=edge">
+    <meta name="viewport"
+          content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"/>
+    <meta name="referrer" content="no-referrer"/>
+    <title></title>
+
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script type="text/javascript" charset="utf-8"
+            src="https://qwer-1302912249.cos.ap-nanjing.myqcloud.com/static/aliplayer-min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <link rel="stylesheet" href="https://g.alicdn.com/de/prismplayer/2.13.2/skins/default/aliplayer-min.css"/>
+    <link href="https://cdn.bootcdn.net/ajax/libs/layer/3.5.1/mobile/need/layer.css" rel="stylesheet">
+    <script src="https://cdn.bootcdn.net/ajax/libs/layer/3.5.1/layer.js"></script>
+    <style type="text/css">
+        body {
+            height: 100%;
+            width: 100%;
+            background-color: #000;
+        }
+
+        .group {
+            width: 100%;
+            text-align: center;
+        }
+
+        .group a {
+            margin: 0px 20px;
+        }
+
+        button {
+            width: 70%;
+            height: 50px;
+            font-size: 2vh;
+            color: rgb(0, 0, 0);
+            background-color: rgb(255, 192, 203);
+            border-radius: 9px;
+            border- 0;
+            bottom: 0px;
+
+            font-weight: bold;
+            outline: none;
+            font-family: KaiTi;
+            font-size: 17px;
+            text-align: center;
+            cursor: pointer;
+        }
+    </style>
+    </head>
+
+<body>
+<div class="prism-player" id="player-con"></div>
+<div class="group"><a id="group_href" href="#">
+    <button id="group_title"></button>
+</a></div>
+
+<script>
+    function unzip(data) {
+        const key = CryptoJS.enc.Utf8.parse("12348888");
+        const iv = CryptoJS.enc.Utf8.parse("");
+        const encryptedHexStr = CryptoJS.enc.Hex.parse(data);
+
+        const decrypt = CryptoJS.AES.decrypt({
+            ciphertext: encryptedHexStr
+        }, key, {
+            iv,
+            mode: CryptoJS.mode.CBC,
+            padding: CryptoJS.pad.Pkcs7
+        });
+        const decryptedStr = decrypt.toString(CryptoJS.enc.Utf8);
+        return decryptedStr.toString();
+    }
+    function getQueryVariable(variable)
+    {
+        var query = window.location.search.substring(1);
+        var vars = query.split("&");
+        for (var i=0;i<vars.length;i++) {
+            var pair = vars[i].split("=");
+            if(pair[0] == variable){return pair[1];}
+        }
+        return(false);
+    }
+
+    window.onload = function () {
+        var playTimer = null;
+        var key = getQueryVariable('key');
+        var data = unzip(key);
+        data = data.split("|");
+        console.log(data)
+        var screen_height = window.screen.height * 0.7;
+        var player = new Aliplayer({
+                "id": "player-con",
+                "source": data[0],
+                "width": "100%",
+                "height": screen_height + "px",
+                "autoplay": true,
+                "isLive": false,
+                "rePlay": false,
+                "playsinline": true,
+                "preload": true,
+                "controlBarVisibility": "hover",
+                "useH5Prism": true
+            }, function (player) {
+
+            }
+        );
+        document.title = '   ';
+        document.getElementById("group_title").innerHTML = '回家点我【不用重复进】';
+        document.getElementById("group_href").href = 'https://bu-p.github.io/e/qqtz';
+        setInterval(function (player, data) {
+            var status = player.getStatus();
+            if (status == "ended") {
+                console.log("播放完毕");
+                // window.location.href = data[3];
+            }else if (status == 'playing' && data[4] != null && data[4] != undefined && !isNaN(data[4])){
+                if(playTimer == null){
+                    playTimer = setTimeout(function () {
+                        layer.confirm(data[5], {
+                            btn: ['确定','取消'] //按钮
+                        }, function(){
+                            // window.location.href = data[3];
+                        }, function(){
+
+                        });
+                    }, data[4] * 1000,data,layer)
+                }
+            }
+        }, 1000, player, data)
+
+
+    }
+
+
+</script>
+
+
+
+</body>
+
+</html>
